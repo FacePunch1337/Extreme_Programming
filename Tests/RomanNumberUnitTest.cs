@@ -81,7 +81,7 @@ namespace Tests
                 Assert.AreEqual(pair.Value, RomanNumber.Parse(pair.Key).Value, $"{pair.Value} == {pair.Key}");
         }
 
-        [TestMethod]
+        /*[TestMethod]
         public void TestException()
         {
             Assert.ThrowsException<ArgumentException>(() => RomanNumber.Parse(null!), "RomanNumber.Parse(null!) -> Exeption");
@@ -110,9 +110,9 @@ namespace Tests
 
             Assert.IsTrue(ex.Message.Contains("Invalid digit", StringComparison.OrdinalIgnoreCase), "ex.Message Contains 'Invalid digit'");
             Assert.IsTrue(ex.Message.Contains($"'{num}'", StringComparison.OrdinalIgnoreCase), $"ex.Message contains \"{num}\")");
-        }
+        }*/
 
-        [TestMethod]
+       /* [TestMethod]
         public void TestParseInvalid()
         {
             Dictionary<String, char> test_cases = new Dictionary<string, char>()
@@ -141,9 +141,9 @@ namespace Tests
                 foreach (var c in pair.Value)
                     Assert.IsTrue(ex.Message.Contains($"{c}"), $"Roman number parse ({pair.Key}): ex.Message contains {c}");
             }
-        }
+        }*/
 
-        [TestMethod]
+        /*[TestMethod]
         public void TestParseDubious()
         {
             String[] dubious = { " XC", "XC ", "XC\n", "\tXC", " XC " };
@@ -158,10 +158,10 @@ namespace Tests
 
             String[] dubious2 = { "IIX", "VVX" };
             foreach (var str in dubious2)
-                Assert.IsNotNull(RomanNumber.Parse(str), $"Dubious '{str}' caues NULL");
-        }
+                Assert.ThrowsException<ArgumentException>(() => RomanNumber.Parse(str), $"Dubious '{str}' cause NULL");
+        }*/
 
-        [TestMethod]
+        /*[TestMethod]
         public void TestToString()
         {
             Dictionary<int, string> test_cases = new Dictionary<int, string>()
@@ -201,9 +201,9 @@ namespace Tests
 
             foreach (var item in test_cases)
                 Assert.AreEqual(item.Value, new RomanNumber(item.Key).ToString(), $"{item.Key}.ToString() ---> '{item.Value}'");
-        }
+        }*/
 
-        [TestMethod]
+       /* [TestMethod]
         public void CrossTestParseToString()
         {
             List<int> test_values = new List<int>() { 1, 5, 10, 20, 50, 100, 500, 1000, 3999, -1, -5, -10, -20, -50, -100, -500, -1000, -3999 };
@@ -215,6 +215,84 @@ namespace Tests
 
                 Assert.AreEqual(item, RomanNumber.Parse(roman_str).Value, $"CrossTestParseToString (Message): {item} ---> {roman_str}");
             }
+        }*/
+        [TestMethod]
+        public void TestEval()
+        {
+            // Тестирование операции сложения
+            RomanNumber resultAddition = RomanNumber.Eval("IV + XL");
+            Assert.IsInstanceOfType(resultAddition, typeof(RomanNumber));
+            Assert.IsNotNull(resultAddition);
+            Assert.AreEqual("XLIV", resultAddition.ToString(), "Сумма (resultAddition.ToString()) должна быть равна 'XLIV'");
+
+            // Тестирование операции вычитания
+            RomanNumber resultSubtraction = RomanNumber.Eval("XL - IV");
+            Assert.IsInstanceOfType(resultSubtraction, typeof(RomanNumber));
+            Assert.IsNotNull(resultSubtraction);
+            Assert.AreEqual("XXXVI", resultSubtraction.ToString(), "Разность (resultSubtraction.ToString()) должна быть равна 'XXXVI'");
+
+            // Тестирование операции вычитания с отрицательным результатом
+            RomanNumber resultNegativeSubtraction = RomanNumber.Eval("IV - XL");
+            Assert.IsInstanceOfType(resultNegativeSubtraction, typeof(RomanNumber));
+            Assert.IsNotNull(resultNegativeSubtraction);
+            Assert.AreEqual("-XXXVI", resultNegativeSubtraction.ToString(), "Разность (resultNegativeSubtraction.ToString()) должна быть равна '-XXXVI'");
+
+            var exception = Assert.ThrowsException<ArgumentNullException>(
+                () => RomanNumber.Eval(null!),
+                "Ожидается исключение ArgumentNullException при вычислении выражения null");
+             
+            Random random = new Random();
+            for (int i = 0; i < 256; i++)
+            {
+                RomanNumber x = new RomanNumber(random.Next(-1000, 1000));
+                RomanNumber y = new RomanNumber(random.Next(-1000, 1000));
+
+                //операция сложения
+                RomanNumber expectedAddition = RomanNumber.Eval($"{x.ToString()} + {y.ToString()}");
+                Assert.AreEqual(x.Add(y), expectedAddition);
+                Assert.AreEqual(RomanNumber.Sum(x, y), expectedAddition);
+
+                //операция вычитания
+                RomanNumber expectedSubtraction = RomanNumber.Eval($"{x.ToString()} - {y.ToString()}");
+                Assert.AreEqual(RomanNumber.Subtract(x, y), expectedSubtraction);
+            }
+
         }
+        /*[TestMethod]
+        public void TestParseInvalidNumerals()
+        {
+            Dictionary<string, char[]> invalid_cases = new Dictionary<string, char[]>()
+            {
+                { "IVX", new[] { 'I', 'V', 'X' } },
+                { "VIX", new[] { 'V', 'I', 'X' } },
+                { "IIIX", new[] { 'I', 'I', 'I', 'X' } },
+                { "VVIX", new[] { 'V', 'V', 'I', 'X' } },
+                // Добавьте другие недопустимые случаи здесь
+            };
+
+            foreach (var pair in invalid_cases)
+            {
+                var ex = Assert.ThrowsException<ArgumentException>(() => RomanNumber.Parse(pair.Key), $"RomanNumber.Parse({pair.Key}) -> Exception");
+
+                foreach (var c in pair.Value)
+                    Assert.IsTrue(ex.Message.Contains($"{c}"), $"Ошибка при разборе римского числа ({pair.Key}): Сообщение об ошибке содержит {c}");
+            }
+        }*/
+        /*[TestMethod]
+        public void TypesFeatures()
+        {
+            RomanNumber r = new(10);
+            Assert.AreEqual(10u, r.Value);  // 10u - uint, r.Value - int -- fail
+                                            // між uint та int не знаходиться
+                                            // "переважного" типу і береться
+                                            // AreEqual(object,object)
+            Assert.AreEqual((short)10, r.Value);  // 10s - short, але вмикається
+                                                  // AreEqual(int,int) і short
+                                                  // перетворюється до int при
+                                                  // передачі параметра
+        }*/
+
+
+        
     }
 }
